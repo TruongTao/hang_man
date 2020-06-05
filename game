@@ -1,0 +1,308 @@
+#include<iostream>
+#include<cstring>
+#include<cstdlib>
+#include<ctime>
+#include<vector>
+
+using namespace std;
+
+vector<char> a;
+vector<char> b;
+char guess = '?', press = 'c';
+string name = "";
+const int MAX_BAD_GUESSED = 9;
+const string WORD_LIST[] = {"angle","ant","apple","arch","arm","army","baby","bag",
+                            "ball","band","basin","basket","bath","bed","bee","bell",
+                            "berry","bird","blade","board","boat","bone","book","boot",
+                            "bottle","box","boy","brain","brake","branch","brick","bridge",
+                            "brush","bucket","bulb","button","cake","camera","card","cart",
+                            "carriage","cat","chain","cheese","chest","chin","church","circle",
+                            "clock","cloud","coat","collar","comb","cord","cow","cup","curtain",
+                            "cushion","dog","door","drain","drawer","dress","drop","ear","egg","engine",
+                            "eye","face","farm","feather","finger","fish","flag","floor","fly","foot","fork",
+                            "fowl","frame","garden","girl","glove","goat","gun","hair","hammer","hand","hat",
+                            "head","heart","hook","horn","horse","hospital","house","island","jewel","kettle",
+                            "key","knee","knife","knot","leaf","leg","library","line","lip","lock","map","match",
+                            "monkey","moon","mouth","muscle","nail","neck","needle","nerve","net","nose","nut","office",
+                            "orange","oven","parcel","pen","pencil","picture","pig","pin","pipe","plane","plate","plow",
+                            "pocket","pot","potato","prison","pump","rail","rat","receipt","ring","rod","roof","root","sail",
+                            "school","scissors","screw","seed","sheep","shelf","ship","shirt","shoe","skin","skirt","snake",
+                            "sock","spade","sponge","spoon","spring","square","stamp","star","station","stem","stick",
+                            "stocking","stomach","store","street","sun","table","tail","thread","throat","thumb","ticket",
+                            "toe","tongue","tooth","town","train","tray","tree","trousers","umbrella","wall","watch","wheel",
+                            "whip","whistle","window","wing","wire","worm"};
+
+const int WORD_COUNT = sizeof(WORD_LIST)/sizeof(string);
+const string FIGURE[] =
+{
+    "                               \n"
+    "                               \n"
+    "                               \n"
+    "                               \n"
+    "                               \n"
+    "                               \n"
+    "   -------                     \n"
+    ,
+    "                               \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                |       \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                |       \n"
+    "      |                O       \n"
+    "      |                        \n"
+    "      |                        \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                |       \n"
+    "      |                O       \n"
+    "      |                |       \n"
+    "      |                        \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                |       \n"
+    "      |                O       \n"
+    "      |               /|       \n"
+    "      |                        \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                |       \n"
+    "      |                O       \n"
+    "      |               /|\\     \n"
+    "      |                        \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                |       \n"
+    "      |                O       \n"
+    "      |               /|\\     \n"
+    "      |               /|       \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+    "      ------------------       \n"
+    "      |                |       \n"
+    "      |                O       \n"
+    "      |               /|\\     \n"
+    "      |               /|\\     \n"
+    "      |                        \n"
+    "   -------                     \n"
+    ,
+};
+
+string chooseWord()
+{
+    int random = rand()%WORD_COUNT;
+    return WORD_LIST[random];
+}
+vector<char> setKeyboard()
+{
+    for (char i = 'a'; i <= 'z'; i++) {
+        a.push_back(i);
+    }
+    a.push_back('0');
+    return a;
+}
+void renderKeyboard(char c)
+{
+    int mark = a.size()-1;
+    for (int i = 0; i < a.size(); i++)
+    {
+        if (a[i] == c)
+        {
+            mark = i;
+        }
+    }
+    b.push_back(a[mark]);
+    a.erase(a.begin()+ mark);
+    cout << "Ban chua chon: " << endl;
+    for (int i = 0; i < a.size(); i++)
+    {
+        cout << a[i] << " ";
+    }
+    cout << endl << "Ban da chon: " << endl;
+    for (int i = 0; i < b.size(); i++)
+    {
+        cout << b[i] << " ";
+    }
+    cout << endl;
+}
+void renderGame(string guessedWord, int badGuessCount)
+{
+    cout << "Day la mot khoang dat, bi treo co hay khong la do nhan pham cua ban cao hay thap. Good luck !!!" << endl;
+    cout << FIGURE[badGuessCount] << endl;
+    cout << "Tu duoc doan hien tai la: "<< guessedWord << endl;
+    cout << "So dap an sai: " << badGuessCount << endl;
+}
+
+string update(string guessedWord, string secretWord, char guess)
+{
+    for (int i = secretWord.length()-1; i >= 0; i--)
+    {
+        if (secretWord[i] == guess)
+        {
+            guessedWord[i] = guess;
+        }
+    }
+    return guessedWord;
+}
+bool contains(string secretWord, char guess)
+{
+    size_t found = secretWord.find_first_of(guess);
+    if (found != string::npos)
+        return true;
+    return false;
+}
+
+char readAGuess()
+{
+    char res;
+    cout << "Ky tu ban doan: " << endl;
+    cin >> res;
+    return res;
+}
+void resetArr()
+{
+    a.clear();
+    b.clear();
+}
+void NextTurn();
+void Hangman()
+{
+    int badGuessCount = 0;
+    string secretWord = chooseWord();
+    string guessedWord = string (secretWord.length(), '-');
+    vector<char> a = setKeyboard();
+    do
+    {
+        system("cls");
+        renderGame(guessedWord, badGuessCount);
+        renderKeyboard(guess);
+        guess = readAGuess();
+        if (contains(secretWord, guess))
+        {
+            guessedWord = update(guessedWord, secretWord, guess);
+        }
+        else
+            badGuessCount++;
+    }
+    while(badGuessCount < MAX_BAD_GUESSED && secretWord != guessedWord);
+    system("cls");
+    renderGame(guessedWord, badGuessCount);
+    if (badGuessCount < MAX_BAD_GUESSED)
+    {
+        cout << "Chuc mung " << name << ", ban da thang!" << endl;
+    }
+    else
+    {
+        cout << name << " oi! " << "Rat tiec vi ban da thua!" << endl;
+        cout << "Tu bi an la: " << secretWord << endl;
+        cout << endl << "La ban chua may man chu khong lien quan den nhan pham dau ^^ Huhu" << endl;
+    }
+    cout << endl;
+    NextTurn();
+}
+void Rule();
+void StartGame()
+{
+    cout << "Ban da ro luat roi chu? Cung bat dau choi thoi nao!" << endl;
+    cout << "Hay nhap ten cua ban: " << endl;
+    cin >> name;
+}
+void GameOver()
+{
+    cout << "Ban da thoat tro choi!" << endl;
+    cout << "Lan sau tiep tuc chinh phuc so diem cao hon ban nhe <3" << endl;
+}
+
+int main()
+{
+    srand(time(0));
+    while(press != 0)
+    {
+        system("cls");
+        cout << "--------- Made by: Tao Van Truong ---------" << endl;
+        cout << "Xin chao cac ban da den voi tro choi HANG MAN!" << endl;
+        cout << "Sau day la mot so lua chon danh cho ban." << endl;
+        cout << "Vui long nhap vao ban phim cac so nguyen duong tu 1 den 3:" << endl;
+        cout << "-------------------------- *** --------------------------" << endl;
+        cout << "1. CHOI NGAY" << endl;
+        cout << "2. LUAT CHOI" << endl;
+        cout << "3. THOAT" << endl;
+        cout << "---------------------- Game is Fun ----------------------" << endl;
+        cout << endl << "Ban chon: ";
+        cin >> press;
+        if (press == '2')
+            Rule();
+        else if (press == '1')
+        {
+            StartGame();
+            Hangman();
+        }
+        else
+        {
+            GameOver();
+            exit(1);
+        }
+    }
+    return 0;
+}
+void Rule()
+{
+    system("cls");
+    cout << "LUAT CHOI" << endl;
+    cout << "   *May se nghi mot tu trong dau va dua ra so ky tu cua tu do duoi dang mot hang gach ngang" << endl;
+    cout << "   *Nguoi choi se lan luot doan cac chu cai ma ho cho la co mat trong tu" << endl;
+    cout << "   *Moi lan doan dung thi cac gach ngang tuong ung se duoc thay bang chu cai doan duoc" << endl;
+    cout << "   *Moi lan doan sai thi gia treo co se duoc ve them mot net cua nguoi treo co." << endl;
+    cout << "   *Cuoc choi ket thuc khi mot tu duoc doan dung hoac hinh nguoi treo co (gom 9 net, tuong ung 9 lan doan sai) bi hoan tat." << endl;
+    cout << "Ban da hieu luat choi roi chu?" << endl;
+    cout << "Hay nhap phim 0 de quay tro ve bang dieu khien va bat dau choi ngay nao!" << endl;
+    cout << "Ban chon: ";
+    cin >> press;
+    if (press == '0')
+    {
+        main();
+    }
+}
+void NextTurn()
+{
+    cout << "Ban co muon choi lai tro nay khong? " << endl;
+    cout << "1. Tiep tuc choi tro nay" << endl << "2. Thoat game" << endl;
+    cin >> press;
+    resetArr();
+    if (press == '1') {
+        Hangman();
+    }
+    else {
+        GameOver();
+        exit(1);
+    }
+}
